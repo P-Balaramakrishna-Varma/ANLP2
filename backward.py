@@ -19,15 +19,15 @@ def plot_stats(stats):
     
     plt.clf()
     plt.plot(x, loss, label='loss')
-    plt.savefig('fwloss.png')
+    plt.savefig('bwloss.png')
     
     plt.clf()
     plt.plot(x, accuracy, label='accuracy')
-    plt.savefig('fwaccuracy.png')
+    plt.savefig('bwaccuracy.png')
     
     plt.clf()
     plt.plot(x, perplexity, label='perplexity')
-    plt.savefig('fwperplexity.png')
+    plt.savefig('bwperplexity.png')
 
 
 if __name__ == "__main__":        
@@ -44,8 +44,8 @@ if __name__ == "__main__":
     vocab.set_default_index(0)
 
     
-    train_data = FWDataset("Dataset/LMTokenizedData/train.json", seq_len, vocab)
-    test_data = FWDataset("Dataset/LMTokenizedData/test.json", seq_len, vocab)
+    train_data = BWDataset("Dataset/LMTokenizedData/train.json", seq_len, vocab)
+    test_data = BWDataset("Dataset/LMTokenizedData/test.json", seq_len, vocab)
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
 
@@ -69,4 +69,4 @@ if __name__ == "__main__":
         
     
     # Saving the model
-    torch.save(Model.state_dict(), 'fwmodel.pt')
+    torch.save(Model.state_dict(), 'bwmodel.pt')
