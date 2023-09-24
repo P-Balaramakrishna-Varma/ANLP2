@@ -1,4 +1,22 @@
 # Q1
+## ELMov
+- Is learned by using language modeling task. Which has is more available data compared to machine translational task.
+- We use two Deep LSTM which learn the Forward and Backward LM to create embedding.
+- We create embedding by concatenating the output of the two LSTM at every layer. 
+- We take the concatinated output from every layer take a weighted sum.
+- The weights are decided/optimized/trained for the downstream task. 
+
+## CoVe
+- It is learned by using machine translation task. Which has is less available data compared to language modeling task.
+- We feed GloVe(wx) to a standard, two-layer, bidirectional, long short-term memory network.
+- In Clove we use the output of the last layer of the LSTM as the embedding.
+
+## Similarity
+- ELmov with only one layer trained on Machine translation task will yield to CoVe.
+
+## References
+- Learned in Translation: Contextualized Word Vectors, https://arxiv.org/abs/1708.00107
+
 
 
 
