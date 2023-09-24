@@ -29,12 +29,22 @@ class FWDataset(Dataset):
     
     def __getitem__(self, idx):
         # getting pretrained embedding for previous 5 words
-        X = [self.vocab[token] for token in self.tokens[idx : idx + self.seq_len]]
+        X = []
+        for token in self.tokens[idx : idx + self.seq_len]:
+            if token in self.vocab:
+                X.append(self.vocab[token])
+            else:
+                X.append(self.vocab['<unk>'])
         X = torch.tensor(X)   
         # X = [token for token in self.tokens[idx : idx + self.seq_len]]
      
         # Target (6th word)
-        y =  [self.vocab[token] for token in self.tokens[idx + 1 : idx + self.seq_len + 1]]
+        y = []
+        for token in self.tokens[idx + 1 : idx + self.seq_len + 1]:
+            if token in self.vocab:
+                y.append(self.vocab[token])
+            else:
+                y.append(self.vocab['<unk>'])
         y = torch.tensor(y)
         # y =  [token for token in self.tokens[idx + 1 : idx + self.seq_len + 1]]
 
@@ -62,9 +72,9 @@ class BWDataset(FWDataset):
 
 
 class ForwardLanguageModel(nn.Module):
-    def __init__(self, vocab_size, pre_embedd):
+    def __init__(self, vocab_size, global_embeddings):
         super().__init__()
-        self.embedding = nn.Embedding.from_pretrained(pre_embedd.vectors, freeze=True)
+        self.embedding = nn.Embedding.from_pretrained(global_embeddings, freeze=True)
         self.lstm1 = nn.LSTM(input_size=50, hidden_size=50, batch_first=True)
         self.lstm2 = nn.LSTM(input_size=50, hidden_size=50, batch_first=True)
         self.hidden2 = nn.Linear(50, vocab_size)
@@ -131,3 +141,35 @@ def test_loop(dataloader, model, loss_fun, device):
     return test_loss, correct, peprlexity
 
 
+def load_glove(device): 
+    pre_embedd = torchtext.vocab.GloVe('6B', dim=50)
+    
+    embd = pre_embedd.vectors
+    print(embd.shape)
+    embd = embd.to(device)
+    avg = embd.mean(dim=0).reshape(1, -1)
+    embd = torch.cat((embd, avg), dim=0)
+    print(embd.shape)
+    
+    vocab_dic = pre_embedd.stoi
+    vocab_dic['<unk>'] = len(vocab_dic)
+    print(embd[vocab_dic['<unk>']] == embd[-1])
+    
+    return embd.to("cpu"), vocab_dic
+        
+
+if __name__ == "__main__":
+    device = "cuda:0"
+    
+    ## Pretainted embedding
+    global_embeddings, vocab_dic = load_glove(device)
+    
+    model = ForwardLanguageModel(vocab_size=len(vocab_dic), global_embeddings=global_embeddings).to(device)
+    em = model.embedding(torch.tensor([vocab_dic['<unk>']]).to(device))
+    print(em == global_embeddings[-1].to(device))
+   
+    # test_data = FWDataset("Dataset/LMTokenizedData/test.json", 5, vocab_dic)
+    # test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False)
+    
+    # for X, y in test_dataloader:
+    #     print(X, "\n", y, "\n\n\n\n")
