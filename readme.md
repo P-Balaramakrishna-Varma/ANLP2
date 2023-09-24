@@ -23,3 +23,6 @@
 ## Instructions to run
 - All the python files run without any arguments.
 - Change parameters and file paths in the python files to run the code for experimentation.
+
+## OneDrive link for the models
+- https://iiitaphyd-my.sharepoint.com/:f:/g/personal/balaramakrishna_p_students_iiit_ac_in/EgsLFnW4MqNNmRWnxB7qVgIBGIF-Lfn65M6J-Dxo4frVvA?e=VQ0J09
