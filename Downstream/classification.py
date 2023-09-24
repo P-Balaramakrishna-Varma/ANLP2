@@ -51,15 +51,17 @@ def custom_collate(batch):
 class ClassificationModel(nn.Module):
     def __init__(self, forward_file, backward_file, len_vocab, gobal_embedding, w1=None):
         super().__init__()
-        self.pre_trained = Elmov(forward_file, backward_file, len_vocab, gobal_embedding, w1)
-        self.meaning_aggr = nn.LSTM(input_size=200, hidden_size=200, batch_first=True)
+        # self.pre_trained = Elmov(forward_file, backward_file, len_vocab, gobal_embedding, w1)
+        self.embedding = nn.Embedding.from_pretrained(global_embedding, freeze=True)
+        self.meaning_aggr = nn.LSTM(input_size=100, hidden_size=200, batch_first=True)
         self.hidden = nn.Linear(200, 30)
         self.relu = nn.ReLU()
         self.classifier = nn.Linear(30, 4)
     
     def forward(self, x):
         # word embedding
-        x = self.pre_trained(x)
+        # x = self.pre_trained(x)
+        x = self.embedding(x)
         
         # meaning aggregation
         x, hidden = self.meaning_aggr(x)
@@ -131,8 +133,8 @@ if __name__ == "__main__":
     # hyperparameters
     device = torch.device("cuda", index=0)
     batch_size = 100
-    epcohs = 2
-    lr = 0.00001
+    epcohs = 10
+    lr = 0.0001
    
     # Data creation
     global_embedding, vocab = load_glove(device)
@@ -149,6 +151,10 @@ if __name__ == "__main__":
     # Training
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(Model.parameters(), lr=lr)
+    
+    Results = test_loop(test_dataloader, Model, loss_fn, device)
+    print(Results)
+ 
     stats = []
     for epoch in tqdm(range(epcohs)):
         train_loop(train_dataloader, Model, loss_fn, optimizer, device)
