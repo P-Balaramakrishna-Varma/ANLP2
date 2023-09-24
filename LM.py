@@ -18,9 +18,6 @@ class FWDataset(Dataset):
         print(len(self.tokens))
         self.tokens = self.tokens[:(int(len(self.tokens) / 100))]
         
-        # Loading pretrained embedding
-        # self.pretrained_embedding = torchtext.vocab.GloVe(name='6B', dim=300)
-        
         # Creating vocabulary
         self.vocab = vocab
         
@@ -32,12 +29,10 @@ class FWDataset(Dataset):
     
     def __getitem__(self, idx):
         # getting pretrained embedding for previous 5 words
-        # X = self.pretrained_embedding.get_vecs_by_tokens(self.tokens[idx : idx + self.seq_len])
         X = [self.vocab[token] for token in self.tokens[idx : idx + self.seq_len]]
         X = torch.tensor(X)   
         # X = [token for token in self.tokens[idx : idx + self.seq_len]]
-   
-                
+     
         # Target (6th word)
         y =  [self.vocab[token] for token in self.tokens[idx + 1 : idx + self.seq_len + 1]]
         y = torch.tensor(y)
@@ -64,15 +59,6 @@ class BWDataset(FWDataset):
         X, y = torch.flip(X, [0]), torch.flip(y, [0])
         # X, y = X[::-1] , y[::-1]
         return X, y
-
-
-def create_vacab(filename):
-    # filenname is a json containgin a list of tokens
-    with open(filename, 'r') as f:
-        tokens = json.load(f)
-    vocab = torchtext.vocab.build_vocab_from_iterator([[token] for token in tokens], min_freq=2, specials=["<unk>"])
-    vocab.set_default_index(vocab["<unk>"])
-    return vocab
 
 
 class ForwardLanguageModel(nn.Module):
