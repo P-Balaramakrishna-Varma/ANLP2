@@ -145,15 +145,16 @@ def load_glove(device):
     pre_embedd = torchtext.vocab.GloVe('6B', dim=50)
     
     embd = pre_embedd.vectors
-    print(embd.shape)
+    # print(embd.shape)
     embd = embd.to(device)
     avg = embd.mean(dim=0).reshape(1, -1)
     embd = torch.cat((embd, avg), dim=0)
-    print(embd.shape)
+    # print(embd.shape)
+    # print(embd[-1] == avg[-1])
     
     vocab_dic = pre_embedd.stoi
     vocab_dic['<unk>'] = len(vocab_dic)
-    print(embd[vocab_dic['<unk>']] == embd[-1])
+    # print(embd[vocab_dic['<unk>']] == embd[-1])
     
     return embd.to("cpu"), vocab_dic
         
@@ -162,11 +163,11 @@ if __name__ == "__main__":
     device = "cuda:0"
     
     ## Pretainted embedding
-    global_embeddings, vocab_dic = load_glove(device)
+    # global_embeddings, vocab_dic = load_glove(device)
     
-    model = ForwardLanguageModel(vocab_size=len(vocab_dic), global_embeddings=global_embeddings).to(device)
-    em = model.embedding(torch.tensor([vocab_dic['<unk>']]).to(device))
-    print(em == global_embeddings[-1].to(device))
+    # model = ForwardLanguageModel(vocab_size=len(vocab_dic), global_embeddings=global_embeddings).to(device)
+    # em = model.embedding(torch.tensor([vocab_dic['<unk>']]).to(device))
+    # print(em == global_embeddings[-1].to(device))
    
     # test_data = FWDataset("Dataset/LMTokenizedData/test.json", 5, vocab_dic)
     # test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False)
