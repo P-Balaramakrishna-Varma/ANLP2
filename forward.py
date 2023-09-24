@@ -35,10 +35,10 @@ def plot_stats(stats):
 if __name__ == "__main__":        
     # hyperparameters
     device = torch.device("cuda", index=0)
-    batch_size = 400
+    batch_size = 240
     epcohs = 10
-    seq_len = 5
-    lr = 0.001
+    seq_len = 7
+    lr = 0.00001
    
     # Data creation
     global_embedding, vocab = load_glove(device)
