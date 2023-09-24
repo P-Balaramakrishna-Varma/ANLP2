@@ -80,16 +80,16 @@ class ForwardLanguageModel(nn.Module):
         self.hidden2 = nn.Linear(50, vocab_size)
  
     def forward(self, x):
-        # Lstm layers with 300 dim output
         x = self.embedding(x)
         x, hidden = self.lstm1(x)
         x, hidden = self.lstm2(x)
         
-        # converts 300 dim vector into vocab_size dim vector
         x = self.hidden2(x)
         return x
     
     def forward2(self, x, w1):
+        assert(w1 >= 0 and w1 <= 1)
+        x = self.embedding(x)
         x1, hidden = self.lstm1(x)
         x2, hidden = self.lstm2(x1)
         w1 = w1
