@@ -3,13 +3,17 @@ from LM import *
 
 
 class Elmov(nn.Module):
-    def __init__(self, forward_file, backward_file, w1=None):
+    def __init__(self, forward_file, backward_file, len_vocab, gobal_embedding, w1=None):
+        super().__init__()
+        
         # loading the forward lm
-        self.ForwardModel = torch.load(forward_file)
+        self.ForwardModel = ForwardLanguageModel(len_vocab, gobal_embedding)
+        self.ForwardModel.load_state_dict(torch.load(forward_file))
         self.ForwardModel.requires_grad_(False)
         
         # loaidng the backward lm
-        self.BackwardModel = torch.load(backward_file)
+        self.BackwardModel = ForwardLanguageModel(len_vocab, gobal_embedding)
+        self.BackwardModel.load_state_dict(torch.load(backward_file))
         self.BackwardModel.requires_grad_(False)
         
         # setting the weights
@@ -36,3 +40,9 @@ class Elmov(nn.Module):
         ## comined rep (conatination)
         h = torch.cat((f, b), 2)
         return h
+    
+    
+if __name__ == "__main__":
+    emd, vocab = load_glove("cuda:0")
+    a = Elmov("fwmodel.pt", "bwmodel.pt", len(vocab), emd).to("cuda:0")
+    print(a(torch.tensor([[0], [1]]).to("cuda:0")).shape)
