@@ -32,16 +32,14 @@ def plot_stats(stats):
 
 if __name__ == "__main__":        
     # hyperparameters
-    device = torch.device("cuda", index=0)
-    batch_size = 20
-    epcohs = 1
-    seq_len = 2
+    device = torch.device("cuda", index=1)
+    batch_size = 400
+    epcohs = 4
+    seq_len = 5
+    lr = 0.00001
    
     # Data creation
-    # vocab = create_vacab("Dataset/LMTokenizedData/train.json")
-    pre_embedd = torchtext.vocab.GloVe('6B', dim=50)
-    vocab = torchtext.vocab.vocab(pre_embedd.stoi)
-    vocab.set_default_index(0)
+    global_embedding, vocab = load_glove(device)
 
     
     train_data = BWDataset("Dataset/LMTokenizedData/train.json", seq_len, vocab)
@@ -50,11 +48,11 @@ if __name__ == "__main__":
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
 
     # Model creation
-    Model = ForwardLanguageModel(len(vocab), pre_embedd).to(device)
+    Model = ForwardLanguageModel(len(vocab), global_embedding).to(device)
     
     # Training
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(Model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(Model.parameters(), lr=lr)
     stats = []
     for epoch in tqdm(range(epcohs)):
         train_loop(train_dataloader, Model, loss_fn, optimizer, device)

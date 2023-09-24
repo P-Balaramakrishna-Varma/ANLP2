@@ -16,7 +16,7 @@ class FWDataset(Dataset):
         with open(filename, 'r') as f:
             self.tokens = json.load(f)
         print(len(self.tokens))
-        self.tokens = self.tokens[:(int(len(self.tokens) / 100))]
+        self.tokens = self.tokens[:(int(len(self.tokens) / 25))]
         
         # Creating vocabulary
         self.vocab = vocab
@@ -75,9 +75,9 @@ class ForwardLanguageModel(nn.Module):
     def __init__(self, vocab_size, global_embeddings):
         super().__init__()
         self.embedding = nn.Embedding.from_pretrained(global_embeddings, freeze=True)
-        self.lstm1 = nn.LSTM(input_size=50, hidden_size=50, batch_first=True)
-        self.lstm2 = nn.LSTM(input_size=50, hidden_size=50, batch_first=True)
-        self.hidden2 = nn.Linear(50, vocab_size)
+        self.lstm1 = nn.LSTM(input_size=100, hidden_size=100, batch_first=True)
+        self.lstm2 = nn.LSTM(input_size=100, hidden_size=100, batch_first=True)
+        self.hidden2 = nn.Linear(100, vocab_size)
  
     def forward(self, x):
         x = self.embedding(x)
@@ -142,7 +142,7 @@ def test_loop(dataloader, model, loss_fun, device):
 
 
 def load_glove(device): 
-    pre_embedd = torchtext.vocab.GloVe('6B', dim=50)
+    pre_embedd = torchtext.vocab.GloVe('6B', dim=100)
     
     embd = pre_embedd.vectors
     # print(embd.shape)
@@ -157,20 +157,4 @@ def load_glove(device):
     # print(embd[vocab_dic['<unk>']] == embd[-1])
     
     return embd.to("cpu"), vocab_dic
-        
 
-if __name__ == "__main__":
-    device = "cuda:0"
-    
-    ## Pretainted embedding
-    # global_embeddings, vocab_dic = load_glove(device)
-    
-    # model = ForwardLanguageModel(vocab_size=len(vocab_dic), global_embeddings=global_embeddings).to(device)
-    # em = model.embedding(torch.tensor([vocab_dic['<unk>']]).to(device))
-    # print(em == global_embeddings[-1].to(device))
-   
-    # test_data = FWDataset("Dataset/LMTokenizedData/test.json", 5, vocab_dic)
-    # test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False)
-    
-    # for X, y in test_dataloader:
-    #     print(X, "\n", y, "\n\n\n\n")
