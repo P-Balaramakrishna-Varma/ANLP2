@@ -35,10 +35,14 @@ class FWDataset(Dataset):
         # X = self.pretrained_embedding.get_vecs_by_tokens(self.tokens[idx : idx + self.seq_len])
         X = [self.vocab[token] for token in self.tokens[idx : idx + self.seq_len]]
         X = torch.tensor(X)   
+        # X = [token for token in self.tokens[idx : idx + self.seq_len]]
+   
                 
         # Target (6th word)
         y =  [self.vocab[token] for token in self.tokens[idx + 1 : idx + self.seq_len + 1]]
         y = torch.tensor(y)
+        # y =  [token for token in self.tokens[idx + 1 : idx + self.seq_len + 1]]
+
         return X, y
 
 
@@ -47,7 +51,7 @@ class BWDataset(FWDataset):
         super().__init__(filename, seq_len, vocab)
         
     def __len__(self):
-        return super().__len__(self)
+        return super().__len__()
     
     def __getitem__(self, idx):
         # getting forward dataset
@@ -58,6 +62,7 @@ class BWDataset(FWDataset):
         
         # reversing the sequence
         X, y = torch.flip(X, [0]), torch.flip(y, [0])
+        # X, y = X[::-1] , y[::-1]
         return X, y
 
 
