@@ -5,6 +5,9 @@ import string
 
 # read the entrire file into a string
 def get_tokens_from_text_corpus(text):
+    # cleaning data
+    text = text.replace("\\", " ")
+    
     # word tokenizer.
     tokens = nltk.word_tokenize(text)
 
@@ -17,6 +20,9 @@ def get_tokens_from_text_corpus(text):
 
     # handling words which have a period at the end.
     tokens = [word[:-1] if word[-1] == '.' else word for word in tokens]
+    
+    # cleaning data
+    tokens = [word for word in tokens if (word != '' and word != ' ' and word != '``')]
     return tokens
 
 
