@@ -13,7 +13,7 @@ for file in files:
             class_idx = lines[0]
             text = lines[1]
             tokens = tokenizer.get_tokens_from_text_corpus(text)
-            data.append((class_idx, tokens))
+            data.append((tokens, class_idx))
 
     
     # Storing the text
