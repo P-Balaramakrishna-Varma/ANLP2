@@ -28,7 +28,7 @@ class ClassificationDataset(Dataset):
         return len(self.data)
     
     def __getitem__(self, index) :
-        y = int(self.data[index][1])
+        y = int(self.data[index][1]) - 1     ## makes a difference during cross entropy loss
         tokens = self.data[index][0]
         X = []
         for token in tokens:
@@ -73,12 +73,90 @@ class ClassificationModel(nn.Module):
         return logits
 
 
-if __name__ == "__main__":
-    device = "cuda:0"
-    global_embeddin, vocab = load_glove(device)
-    dataset = ClassificationDataset('./Dataset/AGTokenizedData/test.json', vocab)
-    dataloader = DataLoader(dataset, batch_size=20, shuffle=True, collate_fn=custom_collate)
-    Model = ClassificationModel('./fwmodel.pt', './bwmodel.pt', len(vocab), global_embeddin).to(device)
-    for X, y in dataloader:
+def train_loop(dataloader, model, loss_fn, optimizer, device):
+    model.train()
+    for X, y in tqdm(dataloader):
+        # data
         X, y = X.to(device), y.to(device)
-        Model(X)
+        
+        # forward pass
+        pred = model(X)
+        loss = loss_fn(pred, y)
+        
+        # backpropagation
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+
+def test_loop(dataloader, model, loss_fun, device):
+    model.eval()
+    test_loss, correct = 0, 0
+    with torch.no_grad():
+        for X, y in tqdm(dataloader):
+            # getting data
+            X, y = X.to(device), y.to(device)
+            
+            # forward pass
+            pred = model(X)
+            
+            # stats
+            test_loss += loss_fun(pred, y).item()
+            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+            
+    test_loss /= len(dataloader)
+    correct /= len(dataloader.dataset)
+    return test_loss, correct
+
+
+def plot_stats(stats):
+    stats = list(zip(*stats))
+    x = range(len(stats[0]))
+    
+    plt.clf()
+    plt.plot(x, stats[0], label='Loss')
+    plt.xlabel('Epochs')
+    plt.legend()
+    plt.savefig('./ClassificationLoss.png')
+
+    plt.clf()
+    plt.plot(x, stats[1], label='Accuracy')
+    plt.xlabel('Epochs')
+    plt.legend()
+    plt.savefig('./ClassificationAcc.png')
+
+
+
+if __name__ == "__main__":        
+    # hyperparameters
+    device = torch.device("cuda", index=0)
+    batch_size = 100
+    epcohs = 2
+    lr = 0.00001
+   
+    # Data creation
+    global_embedding, vocab = load_glove(device)
+
+    
+    train_data = ClassificationDataset("./Dataset/AGTokenizedData/train.json", vocab)
+    test_data = ClassificationDataset("./Dataset/AGTokenizedData/test.json", vocab)
+    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, collate_fn=custom_collate)
+    test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True, collate_fn=custom_collate)
+
+    # Model creation
+    Model = ClassificationModel('./fwmodel.pt', './bwmodel.pt', len(vocab), global_embedding).to(device)
+    
+    # Training
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(Model.parameters(), lr=lr)
+    stats = []
+    for epoch in tqdm(range(epcohs)):
+        train_loop(train_dataloader, Model, loss_fn, optimizer, device)
+        stats.append(test_loop(test_dataloader, Model, loss_fn, device))
+        print(stats[-1])
+    plot_stats(stats)
+    print(stats)
+    
+    # Testing
+    Results = test_loop(test_dataloader, Model, loss_fn, device)
+    print(Results)
