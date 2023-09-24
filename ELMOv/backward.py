@@ -42,8 +42,8 @@ if __name__ == "__main__":
     global_embedding, vocab = load_glove(device)
 
     
-    train_data = BWDataset("Dataset/LMTokenizedData/train.json", seq_len, vocab)
-    test_data = BWDataset("Dataset/LMTokenizedData/test.json", seq_len, vocab)
+    train_data = BWDataset("../Dataset/LMTokenizedData/train.json", seq_len, vocab)
+    test_data = BWDataset("../Dataset/LMTokenizedData/test.json", seq_len, vocab)
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
 

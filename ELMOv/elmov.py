@@ -34,7 +34,7 @@ class Elmov(nn.Module):
         f = self.ForwardModel.forward2(x, w1)
         
         ## backward rep
-        b = self.BackwardModel.forward2(x, w1)
+        b = self.BackwardModel.forward2(torch.flip(x, [1]), w1)
         b = torch.flip(b, [1])
         
         ## comined rep (conatination)
@@ -44,5 +44,5 @@ class Elmov(nn.Module):
     
 if __name__ == "__main__":
     emd, vocab = load_glove("cuda:0")
-    a = Elmov("fwmodel.pt", "bwmodel.pt", len(vocab), emd).to("cuda:0")
-    print(a(torch.tensor([[0], [1]]).to("cuda:0")).shape)
+    a = Elmov("../fwmodel.pt", "../bwmodel.pt", len(vocab), emd).to("cuda:0")
+    print(a(torch.tensor([[0, 1]]).to("cuda:0")).shape)
