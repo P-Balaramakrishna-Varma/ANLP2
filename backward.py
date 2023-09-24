@@ -33,9 +33,9 @@ def plot_stats(stats):
 if __name__ == "__main__":        
     # hyperparameters
     device = torch.device("cuda", index=1)
-    batch_size = 400
-    epcohs = 4
-    seq_len = 5
+    batch_size = 200
+    epcohs = 10
+    seq_len = 10
     lr = 0.00001
    
     # Data creation
