@@ -44,5 +44,5 @@ class Elmov(nn.Module):
     
 if __name__ == "__main__":
     emd, vocab = load_glove("cuda:0")
-    a = Elmov("../fwmodel.pt", "../bwmodel.pt", len(vocab), emd).to("cuda:0")
+    a = Elmov("./fwmodel.pt", "./bwmodel.pt", len(vocab), emd).to("cuda:0")
     print(a(torch.tensor([[0, 1]]).to("cuda:0")).shape)
