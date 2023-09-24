@@ -1,6 +1,9 @@
 # Q1
 
 
+
+
+
 # Q2  
 ## Describe this layer.
 - We create one-hot representation for every character. 
